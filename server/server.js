@@ -24,6 +24,7 @@ connectDB();
 
 const allowedOrigins = [
   "http://localhost:5173",
+  "https://marking-client.vercel.app/"
    // change this to your actual frontend URL
 ];
 
