@@ -13,7 +13,7 @@ connectDB();
 // Middleware
 const allowedOrigins = (process.env.FRONTEND_URL || '').split(',').map(o => o.trim()).filter(Boolean);
 app.use(cors({
-  origin: "*",
+  origin: allowedOrigins,
   credentials: true
 }));
 
