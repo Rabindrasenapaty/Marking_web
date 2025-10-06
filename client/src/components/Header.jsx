@@ -43,6 +43,7 @@ const Header = () => {
     e.preventDefault();
     const input = window.prompt('Enter admin password:');
     if (input === "CDD") {
+      localStorage.setItem('isAdminAuthed', 'true'); // set flag
       navigate('/admin');
     } else if (input !== null) {
       alert('Incorrect password!');

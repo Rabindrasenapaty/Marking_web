@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { juriesAPI, teamsAPI, configAPI, exportAPI } from '../utils/api';
 import AdminPanel from '../components/AdminPanel';
+import { useNavigate } from 'react-router-dom';
 
 const AdminPage = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -9,6 +10,13 @@ const AdminPage = () => {
   const [config, setConfig] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (localStorage.getItem('isAdminAuthed') !== 'true') {
+      navigate('/'); // or show a password prompt here
+    }
+  }, [navigate]);
 
   useEffect(() => {
     fetchData();
@@ -119,6 +127,16 @@ const AdminPage = () => {
                 className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 ease-in-out"
               >
                 📦 Export All
+              </button>
+              
+              <button
+                onClick={() => {
+                  localStorage.removeItem('isAdminAuthed');
+                  navigate('/');
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 ease-in-out"
+              >
+                🚪 Logout Admin
               </button>
             </div>
           </div>
