@@ -17,17 +17,17 @@ const Footer = () => {
               Developed with ❤️ by
             </p>
             <p className="text-lg font-bold text-blue-400">
-              K. Rabindra Nath Senapaty
+              K Rabindra Nath Senapaty
             </p>
             <p className="text-xs text-gray-400">
-              © 2024 All rights reserved
+              © 2025 All rights reserved
             </p>
           </div>
         </div>
         
         <div className="border-t border-gray-700 mt-4 pt-4 text-center">
           <p className="text-xs text-gray-400">
-            Built with React.js, Node.js, Express, MongoDB & Tailwind CSS
+           Powered by Coding Design And Development Club
           </p>
         </div>
       </div>
