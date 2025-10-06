@@ -1,9 +1,12 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { configAPI } from '../utils/api';
 
+const ADMIN_PASSWORD = 'yourHardcodedPassword'; // Change this to your desired password
+
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [config, setConfig] = useState({
     collegeName: 'Your College Name',
     clubName: 'Your Club Name',
@@ -32,8 +35,19 @@ const Header = () => {
     { path: '/', label: 'Home', icon: '🏠' },
     { path: '/leaderboard', label: 'Leaderboard', icon: '🏆' },
     { path: '/status', label: 'Status', icon: '📊' },
-    { path: '/admin', label: 'Admin', icon: '⚙️' },
+    // Remove admin from here
   ];
+
+  // Handler for admin link
+  const handleAdminClick = (e) => {
+    e.preventDefault();
+    const input = window.prompt('Enter admin password:');
+    if (input === "CDD") {
+      navigate('/admin');
+    } else if (input !== null) {
+      alert('Incorrect password!');
+    }
+  };
 
   return (
     <header className="bg-white shadow-lg border-b-4 border-blue-600">
@@ -94,6 +108,18 @@ const Header = () => {
                 <span className="hidden sm:inline">{link.label}</span>
               </Link>
             ))}
+            {/* Admin Link with password protection */}
+            <button
+              onClick={handleAdminClick}
+              className={`flex items-center space-x-2 px-3 md:px-4 py-2 rounded-lg text-sm md:text-base font-medium transition-all duration-200 ${
+                isActive('/admin')
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+              }`}
+            >
+              <span className="text-lg">⚙️</span>
+              <span className="hidden sm:inline">Admin</span>
+            </button>
           </div>
         </nav>
       </div>
