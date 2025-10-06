@@ -22,28 +22,28 @@ connectDB();
 //   credentials: true
 // }));
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://marking-client.vercel.app/"
-   // change this to your actual frontend URL
-];
+// const allowedOrigins = [
+//   "http://localhost:5173",
+//   "https://marking-client.vercel.app/"
+//    // change this to your actual frontend URL
+// ];
 
-// ✅ Enable CORS before routes
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
+// // ✅ Enable CORS before routes
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       // Allow requests with no origin (like mobile apps or curl)
+//       if (!origin || allowedOrigins.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error("Not allowed by CORS"));
+//       }
+//     },
+//     credentials: true,
+//   })
+// );
 
-
+app.use(cors())
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
