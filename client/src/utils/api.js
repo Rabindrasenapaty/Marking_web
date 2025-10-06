@@ -5,9 +5,8 @@ const API_BASE_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
+  withCredentials: true, // if backend uses credentials
 });
 
 // Request interceptor
