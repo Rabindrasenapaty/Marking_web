@@ -12,22 +12,36 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // Middleware
-const allowedOrigins = (process.env.FRONTEND_URL || '')
-  .split(',')
-  .map(url => url.trim())
-  .filter(Boolean);
+// const allowedOrigins = (process.env.FRONTEND_URL || '')
+//   .split(',')
+//   .map(url => url.trim())
+//   .filter(Boolean);
 
-app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // allow Postman / server-to-server requests
-    if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
-}));
+// app.use(cors({
+//   origin:true, // Allow all origins for development; change in production
+//   credentials: true
+// }));
+
+const allowedOrigins = [
+  "http://localhost:5173",
+   // change this to your actual frontend URL
+];
+
+// ✅ Enable CORS before routes
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
 
 
 app.use(express.json());
@@ -58,8 +72,10 @@ app.use((req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📊 College Marking System API is ready!`);
-  console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`🚀 Server running on port ${PORT}`);
+//   console.log(`📊 College Marking System API is ready!`);
+//   console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL}`);
+// });
+
+module.exports = app; // ✅ Required for Vercel
