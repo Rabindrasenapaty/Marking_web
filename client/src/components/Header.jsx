@@ -41,6 +41,10 @@ const Header = () => {
   // Handler for admin link
   const handleAdminClick = (e) => {
     e.preventDefault();
+    if (localStorage.getItem('isAdminAuthed') === 'true') {
+      navigate('/admin');
+      return;
+    }
     const input = window.prompt('Enter admin password:');
     if (input === "CDD") {
       localStorage.setItem('isAdminAuthed', 'true'); // set flag
