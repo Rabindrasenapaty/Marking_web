@@ -13,7 +13,7 @@ connectDB();
 // Middleware
 const allowedOrigins = (process.env.FRONTEND_URL || '').split(',').map(o => o.trim()).filter(Boolean);
 app.use(cors({
-  origin: allowedOrigins.length ? allowedOrigins : true,
+  origin: true,
   credentials: true
 }));
 
@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
     message: '🏫 College Competition Marking & Leaderboard System API',
     version: '1.0.0',
     status: 'Running',
-    developer: 'K. Rabindra Nath Senapaty'
+    developer: 'K Rabindra Nath Senapaty'
   });
 });
 
