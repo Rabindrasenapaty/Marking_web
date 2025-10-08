@@ -1,6 +1,8 @@
 import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
+
 
 // Create axios instance
 const api = axios.create({
@@ -75,5 +77,13 @@ export const configAPI = {
   get: () => api.get('/api/config'),
   update: (data) => api.post('/api/config', data),
 };
+
+const API_BASE = '/api/config';
+
+// After
+export const getCriteria = () => api.get('/api/config/criteria');
+export const addCriteria = (criterion) => api.post('/api/config/criteria', { criterion });
+export const removeCriteria = (index) => api.delete('/api/config/criteria', { data: { index } });
+
 
 export default api;

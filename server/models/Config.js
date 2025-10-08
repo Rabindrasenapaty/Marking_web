@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const configSchema = new mongoose.Schema({
-  criteriaList: {
+  criteria: {
     type: [String],
-    default: ['Innovation', 'Creativity', 'Feasibility', 'Presentation']
+    
   },
   maxMarksPerCriterion: {
     type: Number,

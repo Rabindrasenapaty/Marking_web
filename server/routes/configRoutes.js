@@ -1,15 +1,15 @@
 const express = require('express');
-const {
-  getConfig,
-  updateConfig
-} = require('../controllers/configController');
+const configController = require('../controllers/configController');
 
 const router = express.Router();
 
-// GET /api/config - Get configuration
-router.get('/', getConfig);
+// Configuration routes
+router.get('/', configController.getConfig);
+router.post('/', configController.updateConfig);
 
-// POST /api/config - Update configuration
-router.post('/', updateConfig);
+// Criteria routes
+router.get('/criteria', configController.getCriteria);
+router.post('/criteria', configController.addCriteria);
+router.delete('/criteria', configController.removeCriteria);
 
 module.exports = router;

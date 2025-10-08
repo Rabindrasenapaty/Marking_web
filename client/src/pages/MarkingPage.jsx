@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { teamsAPI, marksAPI, juriesAPI } from '../utils/api';
+import { teamsAPI, marksAPI, juriesAPI, getCriteria } from '../utils/api';
 import MarkingTable from '../components/MarkingTable';
 
 const MarkingPage = () => {
@@ -8,6 +8,7 @@ const MarkingPage = () => {
   const navigate = useNavigate();
   const [teams, setTeams] = useState([]);
   const [marks, setMarks] = useState([]);
+  const [criteria, setCriteria] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -19,6 +20,10 @@ const MarkingPage = () => {
       fetchData();
     }
   }, [juryName]);
+
+  useEffect(() => {
+    getCriteria().then(res => setCriteria(res.data));
+  }, []);
 
   const fetchData = async () => {
     try {
@@ -186,6 +191,7 @@ const MarkingPage = () => {
           disabled={isPaused || hasSubmitted}
           saving={saving}
           juryName={juryName}
+          criteria={criteria}
         />
       </div>
     </div>

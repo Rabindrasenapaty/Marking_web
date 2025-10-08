@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { juriesAPI, teamsAPI, configAPI } from '../utils/api';
+import { juriesAPI, teamsAPI, configAPI, getCriteria } from '../utils/api';
 
 const AdminPanel = ({ activeTab, juries, teams, config, onDataUpdate }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -8,6 +8,14 @@ const AdminPanel = ({ activeTab, juries, teams, config, onDataUpdate }) => {
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(false);
+  const [criteriaList, setCriteriaList] = useState([]);
+
+  // Fetch criteria from backend when config tab is active or on mount
+  useEffect(() => {
+    if (activeTab === 'config') {
+      getCriteria().then(res => setCriteriaList(res.data));
+    }
+  }, [activeTab]);
 
   const openModal = (type, item = null) => {
     setModalType(type);
@@ -167,56 +175,72 @@ const AdminPanel = ({ activeTab, juries, teams, config, onDataUpdate }) => {
     </div>
   );
 
-  const renderConfigTab = () => (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">System Configuration</h2>
-        <button onClick={() => openModal('config', config)} className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 ease-in-out">
-          ✏️ Edit Config
-        </button>
-      </div>
+ const renderConfigTab = () => (
+  <div>
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="text-2xl font-bold text-gray-800">System Configuration</h2>
+      <button
+        onClick={() => openModal('config', config)}
+        className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 ease-in-out"
+      >
+        ✏️ Edit Config
+      </button>
+    </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <h3 className="text-lg font-medium mb-4">Competition Details</h3>
-          <div className="space-y-3">
-            <div>
-              <label className="text-sm font-medium text-gray-700">Competition Name</label>
-              <p className="text-gray-900">{config.competitionName}</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700">College Name</label>
-              <p className="text-gray-900">{config.collegeName}</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700">Club Name</label>
-              <p className="text-gray-900">{config.clubName}</p>
-            </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Competition Details */}
+      <div className="bg-white p-6 rounded-lg border border-gray-200">
+        <h3 className="text-lg font-medium mb-4">Competition Details</h3>
+        <div className="space-y-3">
+          <div>
+            <label className="text-sm font-medium text-gray-700">Competition Name</label>
+            <p className="text-gray-900">{config?.competitionName || 'N/A'}</p>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-700">College Name</label>
+            <p className="text-gray-900">{config?.collegeName || 'N/A'}</p>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-700">Club Name</label>
+            <p className="text-gray-900">{config?.clubName || 'N/A'}</p>
           </div>
         </div>
+      </div>
 
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <h3 className="text-lg font-medium mb-4">Marking Criteria</h3>
-          <div className="space-y-3">
-            <div>
-              <label className="text-sm font-medium text-gray-700">Criteria List</label>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {config.criteriaList?.map((criterion, index) => (
-                  <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+      {/* Marking Criteria */}
+      <div className="bg-white p-6 rounded-lg border border-gray-200">
+        <h3 className="text-lg font-medium mb-4">Marking Criteria</h3>
+        <div className="space-y-3">
+          <div>
+            <label className="text-sm font-medium text-gray-700">Criteria List</label>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {criteriaList.length === 0 ? (
+                <span className="text-gray-400">No criteria set.</span>
+              ) : (
+                criteriaList.map((criterion, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full"
+                  >
                     {criterion}
                   </span>
-                ))}
-              </div>
+                ))
+              )}
             </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700">Max Marks per Criterion</label>
-              <p className="text-2xl font-bold text-blue-600">{config.maxMarksPerCriterion}</p>
-            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700">Max Marks per Criterion</label>
+            <p className="text-2xl font-bold text-blue-600">
+              {config?.maxMarksPerCriterion || 0}
+            </p>
           </div>
         </div>
       </div>
     </div>
-  );
+  </div>
+);
+
 
   const renderModal = () => {
     if (!isModalOpen) return null;

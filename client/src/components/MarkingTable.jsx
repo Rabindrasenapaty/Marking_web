@@ -1,35 +1,48 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { getCriteria } from '../utils/api'; // <-- import the API
+
+const maxMarks = 20;
 
 const MarkingTable = ({ teams, initialMarks, onSave, disabled, saving, juryName }) => {
   const [marks, setMarks] = useState([]);
+  const [criteria, setCriteria] = useState([]);
 
-  // Criteria configuration (should come from config)
-  const criteria = ['innovation', 'creativity', 'feasibility', 'presentation'];
-  const maxMarks = 20;
-
+  // Fetch criteria from backend
   useEffect(() => {
-    // Initialize marks with teams
+    getCriteria().then(res => setCriteria(res.data));
+  }, []);
+
+  // Initialize marks with teams and dynamic criteria
+  useEffect(() => {
+    if (criteria.length === 0) return;
     const initializedMarks = teams.map(team => {
       const existingMark = initialMarks.find(m => m.teamName === team.name);
       if (existingMark) {
-        return existingMark;
+        // Ensure all criteria are present
+        const updatedCriteria = {};
+        criteria.forEach(criterion => {
+          updatedCriteria[criterion] = existingMark.criteria?.[criterion] || 0;
+        });
+        return {
+          ...existingMark,
+          criteria: updatedCriteria,
+          total: Object.values(updatedCriteria).reduce((sum, mark) => sum + (mark || 0), 0)
+        };
       }
-      
+      // New mark object with all criteria
+      const criteriaObj = {};
+      criteria.forEach(criterion => {
+        criteriaObj[criterion] = 0;
+      });
       return {
         teamName: team.name,
-        criteria: {
-          innovation: 0,
-          creativity: 0,
-          feasibility: 0,
-          presentation: 0
-        },
+        criteria: criteriaObj,
         total: 0
       };
     });
-    
     setMarks(initializedMarks);
-  }, [teams, initialMarks]);
+  }, [teams, initialMarks, criteria]);
 
   const calculateTotal = (criteriaMarks) => {
     return Object.values(criteriaMarks).reduce((sum, mark) => sum + (mark || 0), 0);
@@ -37,9 +50,10 @@ const MarkingTable = ({ teams, initialMarks, onSave, disabled, saving, juryName 
 
   const handleMarkChange = (teamIndex, criterion, value) => {
     if (disabled) return;
-    
-    const numValue = Math.min(Math.max(0, parseInt(value) || 0), maxMarks);
-    
+    let numValue = parseInt(value);
+    if (isNaN(numValue) || numValue < 0) numValue = 0; // no negatives, empty input becomes 0
+    if (numValue > maxMarks) numValue = maxMarks;
+
     setMarks(prevMarks => {
       const newMarks = [...prevMarks];
       newMarks[teamIndex] = {
@@ -50,26 +64,26 @@ const MarkingTable = ({ teams, initialMarks, onSave, disabled, saving, juryName 
         }
       };
       newMarks[teamIndex].total = calculateTotal(newMarks[teamIndex].criteria);
-      
+
       // Auto-save to localStorage
       localStorage.setItem(`marks_${juryName}`, JSON.stringify(newMarks));
-      
+
       return newMarks;
     });
   };
 
   const handleSubmit = () => {
     if (disabled || saving) return;
-    
-    const isComplete = marks.every(mark => 
-      Object.values(mark.criteria).every(value => value > 0)
+
+    const isComplete = marks.every(mark =>
+      Object.values(mark.criteria).every(value => value >= 0)
     );
-    
+
     if (!isComplete) {
       alert('Please complete marking for all teams and criteria before submitting.');
       return;
     }
-    
+
     if (confirm('Are you sure you want to submit your marks? This action cannot be undone.')) {
       onSave(marks, true);
     }
@@ -81,11 +95,15 @@ const MarkingTable = ({ teams, initialMarks, onSave, disabled, saving, juryName 
     alert('Draft saved successfully!');
   };
 
+  if (criteria.length === 0) {
+    return <div>Loading criteria...</div>;
+  }
+
   return (
     <div className="space-y-6">
       <div className="bg-blue-50 border-l-4 border-blue-400 p-4">
         <p className="text-blue-800 text-sm">
-          <strong>Instructions:</strong> Rate each team on a scale of 0-{maxMarks} for each criterion. 
+          <strong>Instructions:</strong> Rate each team on a scale of 0-{maxMarks} for each criterion.
           The total will be calculated automatically. Save drafts frequently and submit when complete.
         </p>
       </div>
@@ -126,12 +144,11 @@ const MarkingTable = ({ teams, initialMarks, onSave, disabled, saving, juryName 
                       type="number"
                       min="0"
                       max={maxMarks}
-                      value={mark.criteria[criterion] || ''}
+                      value={mark.criteria[criterion] !== undefined ? mark.criteria[criterion] : ''}
                       onChange={(e) => handleMarkChange(index, criterion, e.target.value)}
                       disabled={disabled}
-                      className={`w-16 px-2 py-1 text-center border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'
-                      }`}
+                      className={`w-16 px-2 py-1 text-center border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'
+                        }`}
                     />
                   </td>
                 ))}
@@ -146,11 +163,11 @@ const MarkingTable = ({ teams, initialMarks, onSave, disabled, saving, juryName 
 
       <div className="flex justify-between items-center pt-6 border-t border-gray-200">
         <div className="text-sm text-gray-600">
-          Teams: {marks.length} | 
+          Teams: {marks.length} |
           Completed: {marks.filter(m => Object.values(m.criteria).every(v => v > 0)).length} |
           Max possible total: {maxMarks * criteria.length}
         </div>
-        
+
         <div className="flex space-x-3">
           {!disabled && (
             <>
@@ -161,7 +178,7 @@ const MarkingTable = ({ teams, initialMarks, onSave, disabled, saving, juryName 
               >
                 {saving ? 'Saving...' : '💾 Save Draft'}
               </button>
-              
+
               <button
                 onClick={handleSubmit}
                 disabled={saving}
@@ -171,7 +188,7 @@ const MarkingTable = ({ teams, initialMarks, onSave, disabled, saving, juryName 
               </button>
             </>
           )}
-          
+
           {disabled && (
             <div className="text-green-600 font-medium">
               ✅ Marking Complete

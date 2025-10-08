@@ -34,7 +34,8 @@ const Header = () => {
   const navLinks = [
     { path: '/', label: 'Home', icon: '🏠' },
     { path: '/leaderboard', label: 'Leaderboard', icon: '🏆' },
-    { path: '/status', label: 'Status', icon: '📊' },
+    { path: '/status', label: 'Status', icon: '📊' }
+    
     // Remove admin from here
   ];
 
@@ -62,7 +63,9 @@ const Header = () => {
           {/* College Logo */}
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-2xl">
-              🎓
+              <img
+                src="..\src\assets\Parala_maharaja_engineering_college.jpg"
+                alt="College Logo"></img>
             </div>
             <div className="hidden md:block">
               <h1 className="text-2xl font-bold text-gray-800">
@@ -91,7 +94,9 @@ const Header = () => {
               <p className="text-sm text-gray-600">2024-25</p>
             </div>
             <div className="w-16 h-16 bg-gradient-to-r from-green-600 to-teal-600 rounded-full flex items-center justify-center text-white font-bold text-2xl">
-              🏅
+              <img
+                src="..\src\assets\cdd_logo.png"
+                alt="Club Logo"></img>
             </div>
           </div>
         </div>

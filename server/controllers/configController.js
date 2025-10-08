@@ -5,7 +5,6 @@ const getConfig = async (req, res) => {
   try {
     let config = await Config.findOne({});
     if (!config) {
-      // Create default config if none exists
       config = new Config();
       await config.save();
     }
@@ -27,12 +26,11 @@ const updateConfig = async (req, res) => {
     } = req.body;
 
     let config = await Config.findOne({});
-    if (!config) {
-      config = new Config();
-    }
+    if (!config) config = new Config();
 
     if (criteriaList) config.criteriaList = criteriaList;
-    if (maxMarksPerCriterion !== undefined) config.maxMarksPerCriterion = maxMarksPerCriterion;
+    if (maxMarksPerCriterion !== undefined)
+      config.maxMarksPerCriterion = maxMarksPerCriterion;
     if (competitionName) config.competitionName = competitionName;
     if (collegeName) config.collegeName = collegeName;
     if (clubName) config.clubName = clubName;
@@ -44,7 +42,47 @@ const updateConfig = async (req, res) => {
   }
 };
 
+// Criteria handlers
+const getCriteria = async (req, res) => {
+  try {
+    const config = await Config.findOne();
+    res.json(config?.criteria || []);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const addCriteria = async (req, res) => {
+  try {
+    const { criterion } = req.body;
+    const config = await Config.findOne() || new Config();
+    config.criteria.push(criterion);
+    await config.save();
+    res.json(config.criteria);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const removeCriteria = async (req, res) => {
+  try {
+    const { index } = req.body;
+    const config = await Config.findOne();
+    if (!config) return res.status(404).json({ message: "No config found" });
+
+    config.criteria.splice(index, 1);
+    await config.save();
+    res.json(config.criteria);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ✅ Export all functions properly
 module.exports = {
   getConfig,
-  updateConfig
+  updateConfig,
+  getCriteria,
+  addCriteria,
+  removeCriteria,
 };

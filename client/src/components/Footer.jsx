@@ -17,7 +17,7 @@ const Footer = () => {
               Developed with ❤️ by
             </p>
             <p className="text-lg font-bold text-blue-400">
-              K Rabindra Nath Senapaty
+              Chhayakant Dash
             </p>
             <p className="text-xs text-gray-400">
               © 2025 All rights reserved

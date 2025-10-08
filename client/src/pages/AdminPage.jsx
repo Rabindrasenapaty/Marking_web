@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { juriesAPI, teamsAPI, configAPI, exportAPI } from '../utils/api';
+import { juriesAPI, teamsAPI, configAPI, exportAPI, getCriteria, addCriteria, removeCriteria } from '../utils/api';
 import AdminPanel from '../components/AdminPanel';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,6 +10,8 @@ const AdminPage = () => {
   const [config, setConfig] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [criteria, setCriteria] = useState([]);
+  const [newCriteria, setNewCriteria] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,6 +22,7 @@ const AdminPage = () => {
 
   useEffect(() => {
     fetchData();
+    fetchCriteria();
   }, []);
 
   const fetchData = async () => {
@@ -42,6 +45,24 @@ const AdminPage = () => {
     }
   };
 
+  const fetchCriteria = async () => {
+    const res = await getCriteria();
+    setCriteria(res.data);
+  };
+
+  const handleAdd = async () => {
+    if (newCriteria.trim() !== '') {
+      await addCriteria(newCriteria.trim());
+      setNewCriteria('');
+      fetchCriteria();
+    }
+  };
+
+  const handleRemove = async (idx) => {
+    await removeCriteria(idx);
+    fetchCriteria();
+  };
+
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   };
@@ -50,7 +71,7 @@ const AdminPage = () => {
     const submittedJuries = juries.filter(j => j.hasSubmitted).length;
     const pausedJuries = juries.filter(j => j.paused && !j.hasSubmitted).length;
     const pendingJuries = juries.length - submittedJuries - pausedJuries;
-    
+
     return {
       totalJuries: juries.length,
       totalTeams: teams.length,
@@ -72,6 +93,7 @@ const AdminPage = () => {
     { id: 'teams', label: 'Manage Teams', icon: '👥' },
     { id: 'config', label: 'Configuration', icon: '⚙️' },
     { id: 'exports', label: 'Export Data', icon: '📥' },
+    { id: 'criteria', label: 'Criteria', icon: '🧾' }
   ];
 
   if (loading) {
@@ -113,7 +135,7 @@ const AdminPage = () => {
                 Manage juries, teams, and system configuration
               </p>
             </div>
-            
+
             <div className="flex items-center space-x-3 mt-4 md:mt-0">
               <button
                 onClick={fetchData}
@@ -121,14 +143,14 @@ const AdminPage = () => {
               >
                 🔄 Refresh
               </button>
-              
+
               <button
                 onClick={handleExportAll}
                 className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 ease-in-out"
               >
                 📦 Export All
               </button>
-              
+
               <button
                 onClick={() => {
                   localStorage.removeItem('isAdminAuthed');
@@ -149,11 +171,10 @@ const AdminPage = () => {
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                  activeTab === tab.id
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${activeTab === tab.id
                     ? 'bg-blue-600 text-white'
                     : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
-                }`}
+                  }`}
               >
                 <span>{tab.icon}</span>
                 <span>{tab.label}</span>
@@ -169,7 +190,7 @@ const AdminPage = () => {
               <h2 className="text-2xl font-bold text-gray-800 mb-6">
                 System Overview
               </h2>
-              
+
               {/* Stats Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 <div className="p-6 bg-blue-50 rounded-lg border border-blue-200">
@@ -181,7 +202,7 @@ const AdminPage = () => {
                     <div className="text-4xl">👨‍⚖️</div>
                   </div>
                 </div>
-                
+
                 <div className="p-6 bg-green-50 rounded-lg border border-green-200">
                   <div className="flex items-center justify-between">
                     <div>
@@ -191,7 +212,7 @@ const AdminPage = () => {
                     <div className="text-4xl">👥</div>
                   </div>
                 </div>
-                
+
                 <div className="p-6 bg-purple-50 rounded-lg border border-purple-200">
                   <div className="flex items-center justify-between">
                     <div>
@@ -226,7 +247,7 @@ const AdminPage = () => {
               <h2 className="text-2xl font-bold text-gray-800 mb-6">
                 Export Options
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="p-6 border border-gray-200 rounded-lg">
                   <h3 className="text-lg font-semibold mb-4">📊 Leaderboard</h3>
@@ -240,7 +261,7 @@ const AdminPage = () => {
                     Download Leaderboard Excel
                   </button>
                 </div>
-                
+
                 <div className="p-6 border border-gray-200 rounded-lg">
                   <h3 className="text-lg font-semibold mb-4">👨‍⚖️ Jury Reports</h3>
                   <p className="text-gray-600 mb-4">
@@ -262,8 +283,80 @@ const AdminPage = () => {
             </div>
           )}
 
+          {activeTab === 'juries' && (
+            <div>
+
+
+              {/* Jury management content here */}
+            </div>
+          )}
+
+          {activeTab === 'teams' && (
+            <div>
+
+
+              {/* Team management content here */}
+            </div>
+          )}
+
+          {activeTab === 'config' && (
+            <div>
+
+
+              {/* Configuration settings content here */}
+            </div>
+          )}
+
+          {activeTab === 'criteria' && (
+            <div className="p-6 bg-gray-50 rounded-lg shadow-md">
+              <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b pb-2">
+                🧾 Criteria List
+              </h2>
+
+              {/* Criteria Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                {criteria.length === 0 ? (
+                  <p className="text-gray-400 col-span-full text-center">No criteria set yet.</p>
+                ) : (
+                  criteria.map((c, idx) => (
+                    <div
+                      key={idx}
+                      className="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+                    >
+                      <span className="text-gray-800 font-medium">{c}</span>
+                      <button
+                        onClick={() => handleRemove(idx)}
+                        className="ml-2 text-white bg-red-500 hover:bg-red-600 px-3 py-1 rounded transition-colors duration-200"
+                      >
+                        🗑️ Remove
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Add New Criteria */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="text"
+                  value={newCriteria}
+                  onChange={e => setNewCriteria(e.target.value)}
+                  placeholder="Enter new criteria"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  onClick={handleAdd}
+                  className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                >
+                  ➕ Add Criteria
+                </button>
+              </div>
+            </div>
+          )}
+
+
           {/* Other tab contents will be handled by AdminPanel component */}
-          {activeTab !== 'dashboard' && activeTab !== 'exports' && (
+          {activeTab !== 'dashboard' && activeTab !== 'exports' && activeTab !== 'criteria' && (
             <AdminPanel
               activeTab={activeTab}
               juries={juries}

@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/database');
 const apiRoutes = require('./routes');
+const configRoutes = require('./routes/configRoutes');
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api', apiRoutes);
+app.use('/api/config', configRoutes);
 
 // Root route
 app.get('/', (req, res) => {
@@ -55,4 +57,8 @@ app.use((req, res) => {
 });
 
 // ❌ No app.listen() here for Vercel
-module.exports = app;
+// app.listen(process.env.PORT || 5000, () => {
+//   console.log(`Server running on port ${process.env.PORT || 5000}`);
+// });
+
+module.exports = app; // Export app for serverless deployment
