@@ -1,6 +1,8 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { configAPI } from '../utils/api';
+import cdd_logo from '../assets/cdd_logo.png';
+import Parala_maharaja_engineering_college from '../assets/Parala_maharaja_engineering_college.png';
 
 const ADMIN_PASSWORD = 'yourHardcodedPassword'; // Change this to your desired password
 
@@ -64,7 +66,7 @@ const Header = () => {
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-2xl">
               <img
-                src="..\src\assets\Parala_maharaja_engineering_college.jpg"
+                src={Parala_maharaja_engineering_college}
                 alt="College Logo"></img>
             </div>
             <div className="hidden md:block">
@@ -95,7 +97,7 @@ const Header = () => {
             </div>
             <div className="w-16 h-16 bg-gradient-to-r from-green-600 to-teal-600 rounded-full flex items-center justify-center text-white font-bold text-2xl">
               <img
-                src="..\src\assets\cdd_logo.png"
+                src={cdd_logo}
                 alt="Club Logo"></img>
             </div>
           </div>
