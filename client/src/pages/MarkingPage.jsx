@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { teamsAPI, marksAPI, juriesAPI, getCriteria } from '../utils/api';
 import MarkingTable from '../components/MarkingTable';
+import toast from 'react-hot-toast';
 
 const MarkingPage = () => {
   const { juryName } = useParams();
@@ -57,13 +58,14 @@ const MarkingPage = () => {
   const handleSave = async (marksData, isSubmit = false) => {
     try {
       setSaving(true);
+      console.log("Submitting marks:", marksData);
       await marksAPI.save(juryName, { marks: marksData });
       
       if (isSubmit) {
         setHasSubmitted(true);
         setIsPaused(false);
         localStorage.removeItem(`marks_${juryName}`);
-        alert('Marks submitted successfully!');
+        toast.success('Marks submitted successfully!');
         navigate('/');
       } else {
         // Auto-save to localStorage
@@ -71,7 +73,7 @@ const MarkingPage = () => {
       }
     } catch (error) {
       console.error('Failed to save marks:', error);
-      alert('Failed to save marks. Please try again.');
+      toast.error('Failed to save marks. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -83,7 +85,7 @@ const MarkingPage = () => {
       setIsPaused(true);
     } catch (error) {
       console.error('Failed to pause:', error);
-      alert('Failed to pause. Please try again.');
+      toast.error('Failed to pause. Please try again.');
     }
   };
 
@@ -93,7 +95,7 @@ const MarkingPage = () => {
       setIsPaused(false);
     } catch (error) {
       console.error('Failed to resume:', error);
-      alert('Failed to resume. Please try again.');
+      toast.error('Failed to resume. Please try again.');
     }
   };
 

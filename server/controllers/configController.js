@@ -1,6 +1,7 @@
 const Config = require('../models/Config');
 
 // Get configuration
+// Get configuration
 const getConfig = async (req, res) => {
   try {
     let config = await Config.findOne({});
@@ -8,11 +9,17 @@ const getConfig = async (req, res) => {
       config = new Config();
       await config.save();
     }
-    res.json(config);
+
+    // Ensure numeric value is sent
+    res.json({
+      ...config.toObject(),
+      maxMarksPerCriterion: Number(config.maxMarksPerCriterion) || 20
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Update configuration
 const updateConfig = async (req, res) => {
@@ -54,10 +61,14 @@ const getCriteria = async (req, res) => {
 
 const addCriteria = async (req, res) => {
   try {
-    const { criterion } = req.body;
+    let { criterion } = req.body;
+    criterion = criterion.trim().toUpperCase(); // <-- ALL CAPS
+
     const config = await Config.findOne() || new Config();
-    config.criteria.push(criterion);
-    await config.save();
+    if (!config.criteria.includes(criterion)) {
+      config.criteria.push(criterion);
+      await config.save();
+    }
     res.json(config.criteria);
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -12,7 +13,7 @@ function App() {
     <Router>
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <Header />
-        
+        <Toaster position="top-right" />
         <main className="flex-1 container mx-auto px-4 py-6">
           <Routes>
             <Route path="/" element={<Home />} />
@@ -22,7 +23,6 @@ function App() {
             <Route path="/admin" element={<AdminPage />} />
           </Routes>
         </main>
-        
         <Footer />
       </div>
     </Router>

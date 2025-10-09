@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { juriesAPI, teamsAPI, configAPI, exportAPI, getCriteria, addCriteria, removeCriteria } from '../utils/api';
 import AdminPanel from '../components/AdminPanel';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const AdminPage = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -51,12 +52,17 @@ const AdminPage = () => {
   };
 
   const handleAdd = async () => {
+
     if (newCriteria.trim() !== '') {
-      await addCriteria(newCriteria.trim());
+      const capitalized = newCriteria.trim().toUpperCase();
+      await addCriteria(capitalized);
       setNewCriteria('');
       fetchCriteria();
+    } else {
+      toast.error('Please enter a valid criterion');
     }
   };
+
 
   const handleRemove = async (idx) => {
     await removeCriteria(idx);
@@ -84,7 +90,7 @@ const AdminPage = () => {
 
   const handleExportAll = () => {
     // This would create a ZIP file with all exports
-    alert('Export all feature will be implemented soon!');
+    toast.success('Export all feature will be implemented soon!');
   };
 
   const tabs = [
@@ -172,8 +178,8 @@ const AdminPage = () => {
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${activeTab === tab.id
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
                   }`}
               >
                 <span>{tab.icon}</span>
@@ -340,10 +346,11 @@ const AdminPage = () => {
                 <input
                   type="text"
                   value={newCriteria}
-                  onChange={e => setNewCriteria(e.target.value)}
+                  onChange={e => setNewCriteria(e.target.value.toUpperCase())}
                   placeholder="Enter new criteria"
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+
                 <button
                   onClick={handleAdd}
                   className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200"

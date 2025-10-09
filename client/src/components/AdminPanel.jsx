@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { juriesAPI, teamsAPI, configAPI, getCriteria } from '../utils/api';
+import toast from 'react-hot-toast';
 
 const AdminPanel = ({ activeTab, juries, teams, config, onDataUpdate }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,7 +40,7 @@ const AdminPanel = ({ activeTab, juries, teams, config, onDataUpdate }) => {
       if (activeTab === 'juries') {
         if (editingItem) {
           // Update jury (not implemented in backend)
-          alert('Update functionality coming soon!');
+          toast.success('Update functionality coming soon!');
         } else {
           await juriesAPI.create({ name: formData.name });
         }
@@ -56,7 +57,7 @@ const AdminPanel = ({ activeTab, juries, teams, config, onDataUpdate }) => {
       closeModal();
       onDataUpdate();
     } catch (error) {
-      alert('Error: ' + (error.response?.data?.message || error.message));
+      toast.error('Error: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }
@@ -73,7 +74,7 @@ const AdminPanel = ({ activeTab, juries, teams, config, onDataUpdate }) => {
       }
       onDataUpdate();
     } catch (error) {
-      alert('Error: ' + (error.response?.data?.message || error.message));
+      toast.error('Error: ' + (error.response?.data?.message || error.message));
     }
   };
 

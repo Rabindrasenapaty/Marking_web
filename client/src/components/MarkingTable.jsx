@@ -1,16 +1,21 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { getCriteria } from '../utils/api'; // <-- import the API
-
-const maxMarks = 20;
+import { getCriteria, configAPI } from '../utils/api'; // import configAPI
+import toast from 'react-hot-toast';
 
 const MarkingTable = ({ teams, initialMarks, onSave, disabled, saving, juryName }) => {
   const [marks, setMarks] = useState([]);
   const [criteria, setCriteria] = useState([]);
+  const [maxMarks, setMaxMarks] = useState(20); // default, will be updated
 
-  // Fetch criteria from backend
+  // Fetch criteria and maxMarks from backend
   useEffect(() => {
     getCriteria().then(res => setCriteria(res.data));
+    configAPI.get().then(res => {
+      const val = res.data.maxMarksPerCriterion;
+      setMaxMarks(Number(val) || 20);
+    });
+
   }, []);
 
   // Initialize marks with teams and dynamic criteria
@@ -33,7 +38,7 @@ const MarkingTable = ({ teams, initialMarks, onSave, disabled, saving, juryName 
       // New mark object with all criteria
       const criteriaObj = {};
       criteria.forEach(criterion => {
-        criteriaObj[criterion] = 0;
+        criteriaObj[criterion.toUpperCase()] = 0;
       });
       return {
         teamName: team.name,
@@ -80,7 +85,7 @@ const MarkingTable = ({ teams, initialMarks, onSave, disabled, saving, juryName 
     );
 
     if (!isComplete) {
-      alert('Please complete marking for all teams and criteria before submitting.');
+      toast.error('Please complete marking for all teams and criteria before submitting.');
       return;
     }
 
@@ -92,7 +97,7 @@ const MarkingTable = ({ teams, initialMarks, onSave, disabled, saving, juryName 
   const handleDraft = () => {
     if (disabled || saving) return;
     onSave(marks, false);
-    alert('Draft saved successfully!');
+    toast.success('Draft saved successfully!');
   };
 
   if (criteria.length === 0) {
@@ -144,12 +149,25 @@ const MarkingTable = ({ teams, initialMarks, onSave, disabled, saving, juryName 
                       type="number"
                       min="0"
                       max={maxMarks}
-                      value={mark.criteria[criterion] !== undefined ? mark.criteria[criterion] : ''}
+                      value={
+                        mark.criteria[criterion] === 0
+                          ? 0
+                          : mark.criteria[criterion] || ''
+                      }
+                      onFocus={(e) => {
+                        if (e.target.value === '0') e.target.value = '';
+                      }}
+                      onBlur={(e) => {
+                        if (e.target.value === '') {
+                          handleMarkChange(index, criterion, 0);
+                        }
+                      }}
                       onChange={(e) => handleMarkChange(index, criterion, e.target.value)}
                       disabled={disabled}
                       className={`w-16 px-2 py-1 text-center border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'
                         }`}
                     />
+
                   </td>
                 ))}
                 <td className="px-6 py-4 whitespace-nowrap text-center font-bold text-lg text-blue-600">

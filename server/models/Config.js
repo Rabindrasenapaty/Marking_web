@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const configSchema = new mongoose.Schema({
   criteria: {
     type: [String],
+    default: []
     
   },
   maxMarksPerCriterion: {

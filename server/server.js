@@ -4,6 +4,7 @@ const cors = require('cors');
 const connectDB = require('./config/database');
 const apiRoutes = require('./routes');
 const configRoutes = require('./routes/configRoutes');
+const exportRoutes = require('./routes/exportRoutes');
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api', apiRoutes);
 app.use('/api/config', configRoutes);
+app.use('/api/export', exportRoutes);
 
 // Root route
 app.get('/', (req, res) => {
@@ -56,7 +58,7 @@ app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
 });
 
-// ❌ No app.listen() here for Vercel
+// // ❌ No app.listen() here for Vercel
 // app.listen(process.env.PORT || 5000, () => {
 //   console.log(`Server running on port ${process.env.PORT || 5000}`);
 // });

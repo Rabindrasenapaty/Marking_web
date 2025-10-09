@@ -15,8 +15,11 @@ const exportJuryExcel = async (req, res) => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet(`${juryName}_Marks`);
 
-    // Add headers
-    const headers = ['S.No', 'Team Name', ...config.criteriaList, 'Total'];
+    // Use dynamic criteria
+    const criteriaList = config.criteria || [];
+    console.log("Using criteria list:", criteriaList);
+    
+    const headers = ['S.No', 'Team Name', ...criteriaList, 'Total'];
     worksheet.addRow(headers);
 
     // Style headers
@@ -33,13 +36,12 @@ const exportJuryExcel = async (req, res) => {
     for (const team of teams) {
       const teamMarks = marks.find(m => m.teamName === team.name);
       if (teamMarks) {
+        // ✅ Use .get() for Map fields
+        const criteriaValues = criteriaList.map(criterion => teamMarks.criteria.get(criterion) ?? 0);
         const rowData = [
           serialNo++,
           team.name,
-          teamMarks.criteria.innovation,
-          teamMarks.criteria.creativity,
-          teamMarks.criteria.feasibility,
-          teamMarks.criteria.presentation,
+          ...criteriaValues,
           teamMarks.total
         ];
         worksheet.addRow(rowData);
@@ -47,7 +49,8 @@ const exportJuryExcel = async (req, res) => {
         const rowData = [
           serialNo++,
           team.name,
-          0, 0, 0, 0, 0
+          ...criteriaList.map(() => 0),
+          0
         ];
         worksheet.addRow(rowData);
       }
@@ -59,8 +62,8 @@ const exportJuryExcel = async (req, res) => {
     });
 
     // Add borders to all cells
-    worksheet.eachRow((row, rowNumber) => {
-      row.eachCell((cell, colNumber) => {
+    worksheet.eachRow((row) => {
+      row.eachCell((cell) => {
         cell.border = {
           top: { style: 'thin' },
           left: { style: 'thin' },
@@ -157,9 +160,9 @@ const exportLeaderboardExcel = async (req, res) => {
       column.width = Math.max(column.width || 10, 15);
     });
 
-    // Add borders to all cells
-    worksheet.eachRow((row, rowNumber) => {
-      row.eachCell((cell, colNumber) => {
+    // Add borders
+    worksheet.eachRow((row) => {
+      row.eachCell((cell) => {
         cell.border = {
           top: { style: 'thin' },
           left: { style: 'thin' },
