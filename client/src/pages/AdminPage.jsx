@@ -3,6 +3,7 @@ import { juriesAPI, teamsAPI, configAPI, exportAPI, getCriteria, addCriteria, re
 import AdminPanel from '../components/AdminPanel';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 const AdminPage = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -25,6 +26,30 @@ const AdminPage = () => {
     fetchData();
     fetchCriteria();
   }, []);
+
+  const handleReset = async () => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'This will permanently reset all data!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, reset it!',
+      cancelButtonText: 'Cancel',
+      backdrop: true,
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await configAPI.reset();
+        toast.success('All data reset!');
+        fetchData();
+      } catch (err) {
+        toast.error('Failed to reset: ' + (err.response?.data?.message || err.message));
+      }
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -88,10 +113,7 @@ const AdminPage = () => {
     };
   };
 
-  const handleExportAll = () => {
-    // This would create a ZIP file with all exports
-    toast.success('Export all feature will be implemented soon!');
-  };
+
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
@@ -150,11 +172,12 @@ const AdminPage = () => {
                 🔄 Refresh
               </button>
 
+
               <button
-                onClick={handleExportAll}
-                className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 ease-in-out"
+                onClick={handleReset}
+                className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 ease-in-out ml-4"
               >
-                📦 Export All
+                🗑️ Reset All Data
               </button>
 
               <button

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { getCriteria, configAPI } from '../utils/api'; // import configAPI
 import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 const MarkingTable = ({ teams, initialMarks, onSave, disabled, saving, juryName }) => {
   const [marks, setMarks] = useState([]);
@@ -77,28 +78,42 @@ const MarkingTable = ({ teams, initialMarks, onSave, disabled, saving, juryName 
     });
   };
 
-  const handleSubmit = () => {
-    if (disabled || saving) return;
+const handleSubmit = async () => {
+  if (disabled || saving) return;
 
-    const isComplete = marks.every(mark =>
-      Object.values(mark.criteria).every(value => value >= 0)
-    );
+  const isComplete = marks.every(mark =>
+    Object.values(mark.criteria).every(value => value >= 0)
+  );
 
-    if (!isComplete) {
-      toast.error('Please complete marking for all teams and criteria before submitting.');
-      return;
-    }
+  if (!isComplete) {
+    toast.error('Please complete marking for all teams and criteria before submitting.');
+    return;
+  }
 
-    if (confirm('Are you sure you want to submit your marks? This action cannot be undone.')) {
-      onSave(marks, true);
-    }
-  };
+  const result = await Swal.fire({
+    title: 'Submit your marks?',
+    text: 'Once submitted, you cannot change them.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#2563eb', // Tailwind blue-600
+    cancelButtonColor: '#6b7280',  // Tailwind gray-500
+    confirmButtonText: 'Yes, submit',
+    cancelButtonText: 'Cancel',
+    background: '#fff',
+    backdrop: 'rgba(0,0,0,0.4)',
+  });
 
-  const handleDraft = () => {
-    if (disabled || saving) return;
-    onSave(marks, false);
-    toast.success('Draft saved successfully!');
-  };
+  if (result.isConfirmed) {
+    onSave(marks, true);
+    
+  }
+};
+
+  // const handleDraft = () => {
+  //   if (disabled || saving) return;
+  //   onSave(marks, false);
+  //   toast.success('Draft saved successfully!');
+  // };
 
   if (criteria.length === 0) {
     return <div>Loading criteria...</div>;
@@ -189,13 +204,13 @@ const MarkingTable = ({ teams, initialMarks, onSave, disabled, saving, juryName 
         <div className="flex space-x-3">
           {!disabled && (
             <>
-              <button
+              {/* <button
                 onClick={handleDraft}
                 disabled={saving}
                 className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 ease-in-out"
               >
                 {saving ? 'Saving...' : '💾 Save Draft'}
-              </button>
+              </button> */}
 
               <button
                 onClick={handleSubmit}

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 const API_BASE_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:5000';
 
 
+
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -76,6 +77,7 @@ export const exportAPI = {
 export const configAPI = {
   get: () => api.get('/api/config'),
   update: (data) => api.post('/api/config', data),
+  reset: () => api.post('/api/config/reset'),
 };
 
 const API_BASE = '/api/config';

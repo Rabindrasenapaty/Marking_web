@@ -1,6 +1,9 @@
+const Jury = require('../models/Jury');
+const Team = require('../models/Team');
+const Marks = require('../models/Marks');
 const Config = require('../models/Config');
 
-// Get configuration
+
 // Get configuration
 const getConfig = async (req, res) => {
   try {
@@ -89,6 +92,27 @@ const removeCriteria = async (req, res) => {
   }
 };
 
+const resetAll = async (req, res) => {
+  try {
+    await Jury.deleteMany({});
+    await Team.deleteMany({});
+    await Marks.deleteMany({});
+    // Optionally, reset criteria and config fields
+    const config = await Config.findOne();
+    if (config) {
+      config.criteria = [];
+      config.maxMarksPerCriterion = 20;
+      config.competitionName = '';
+      config.collegeName = '';
+      config.clubName = '';
+      await config.save();
+    }
+    res.json({ success: true, message: 'All data reset.' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // ✅ Export all functions properly
 module.exports = {
   getConfig,
@@ -96,4 +120,5 @@ module.exports = {
   getCriteria,
   addCriteria,
   removeCriteria,
+  resetAll,
 };
