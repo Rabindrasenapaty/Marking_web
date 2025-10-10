@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { configAPI } from '../utils/api';
 import parala from '../assets/Parala_maharaja_engineering_college.jpg';
 import cdd_logo from '../assets/cdd_logo.png';
+import Swal from 'sweetalert2';
 
 const ADMIN_PASSWORD = 'yourHardcodedPassword'; // Change this to your desired password
 
@@ -42,20 +43,55 @@ const Header = () => {
   ];
 
   // Handler for admin link
-  const handleAdminClick = (e) => {
-    e.preventDefault();
-    if (localStorage.getItem('isAdminAuthed') === 'true') {
-      navigate('/admin');
-      return;
-    }
-    const input = window.prompt('Enter admin password:');
-    if (input === "CDD") {
-      localStorage.setItem('isAdminAuthed', 'true'); // set flag
-      navigate('/admin');
-    } else if (input !== null) {
-      alert('Incorrect password!');
-    }
-  };
+
+
+const handleAdminClick = async (e) => {
+  e.preventDefault();
+
+  if (localStorage.getItem('isAdminAuthed') === 'true') {
+    navigate('/admin');
+    return;
+  }
+
+  // Show SweetAlert2 password input
+  const { value: password } = await Swal.fire({
+    title: 'Admin Login',
+    input: 'password',
+    inputLabel: 'Enter admin password:',
+    inputPlaceholder: 'Type your password here',
+    showCancelButton: true,
+    confirmButtonText: 'Login',
+    cancelButtonText: 'Cancel',
+    confirmButtonColor: '#2563eb', // Tailwind blue-600
+    cancelButtonColor: '#6b7280',  // gray-500
+    background: '#fff',
+    inputAttributes: {
+      autocapitalize: 'off',
+      autocorrect: 'off'
+    },
+  });
+
+  if (password === undefined) return; // user cancelled
+
+  if (password === 'CDD') {
+    localStorage.setItem('isAdminAuthed', 'true');
+    await Swal.fire({
+      icon: 'success',
+      title: 'Access granted!',
+      text: 'Welcome, Admin.',
+      timer: 1500,
+      showConfirmButton: false,
+    });
+    navigate('/admin');
+  } else {
+    Swal.fire({
+      icon: 'error',
+      title: 'Incorrect password!',
+      text: 'Please try again.',
+    });
+  }
+};
+
 
   return (
     <header className="bg-white shadow-lg border-b-4 border-blue-600">
